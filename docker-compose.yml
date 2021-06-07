@@ -26,6 +26,16 @@ services:
         ports:
             - "6379:6379"   
         volumes:
-            - /redis-data:/var/lib/redis
+            - ./redis-data:/var/lib/redis
         environment:
             - REDIS_REPLICATION_MODE=master
+    jenkins:
+        image: jenkins/jenkins:lts
+        privileged: true
+        user: root
+        ports:
+            - 8083:8080
+            - 50003:50000
+        container_name: jenkins_pipe
+        volumes:
+            - ./jenkins_data:/var/jenkins_home
