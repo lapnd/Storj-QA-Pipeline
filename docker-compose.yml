@@ -1,0 +1,31 @@
+version: "3.9"
+services:
+    db_postgres:
+        image: postgres
+        container_name: db_postgres
+        ports: 
+            - "5400:5432"
+        environment:
+            - POSTGRES_USER=postgres
+            - POSTGRES_PASSWORD=postgres
+            - POSTGRES_DB=teststorj
+        volumes:
+            - ./postgres.conf:/etc/postgresql/postgresql.conf
+        command: postgres -c config_file=/etc/postgresql/postgresql.conf
+        restart: always
+    storj_sim:
+        image: golang:1.16-alpine
+        container_name: storj_sim
+        volumes: 
+            - ./storj_sim-data:/tmp/storj
+        command: /bin/sh -c "/tmp/storj/build.sh"
+    redis:
+        image: redis:alpine
+        container_name: redis
+        command: redis-server --requirepass redis_docker
+        ports:
+            - "6379:6379"   
+        volumes:
+            - /redis-data:/var/lib/redis
+        environment:
+            - REDIS_REPLICATION_MODE=master
