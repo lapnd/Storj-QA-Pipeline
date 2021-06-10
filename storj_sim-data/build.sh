@@ -1,6 +1,6 @@
 #!/bin/sh
-
-apk add --no-cache alpine-sdk redis nodejs npm postgresql wget openssh-client
+#Dependencies 
+apk add --no-cache alpine-sdk redis nodejs npm postgresql wget openssh-client go
 
 mkdir -m 700 /root/.ssh
 touch -m 600 /root/.ssh/known_hosts
@@ -39,11 +39,21 @@ cd $HOME/storj/web/multinode
 npm install
 npm run build
 
-## Make WASM
-cd $HOME/storj
-make satellite-wasm
-mv release/*/wasm/* web/satellite/static/wasm/
+## Make WASM old way
+#cd $HOME/storj
+#make satellite-wasm
+#mv release/*/wasm/* web/satellite/static/wasm/
 
+#MAKE WASM
+cd $HOME/storj/web/satellite
+npm run wasm
+npm install
+npm run build
+
+cd $HOME/storj
+npm install
+#npm run build
+npm build wasm
 ## Get and go
 rm -r $HOME/gateway-mt
 git clone git@github.com:storj/gateway-mt $HOME/gateway-mt

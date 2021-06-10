@@ -1,5 +1,9 @@
 version: "3.9"
+################
+################
+################
 services:
+ ################   
     db_postgres:
         image: postgres
         container_name: db_postgres
@@ -13,12 +17,34 @@ services:
             - ./postgres.conf:/etc/postgresql/postgresql.conf
         command: postgres -c config_file=/etc/postgresql/postgresql.conf
         restart: always
-    storj_sim:
-        image: golang:1.16-alpine
-        container_name: storj_sim
+################    
+
+################
+    docker:
+        # storj-sim container
+        # must be named docker for docker in docker to work.
+        image: docker:dind
+        container_name: docker
+        privileged: true
+        ports:
+            - "2375-2376:2375-2376"
         volumes: 
             - ./storj_sim-data:/tmp/storj
+            - certs:/certs/client
         command: /bin/sh -c "/tmp/storj/build.sh"
+    
+    docker-client:
+        # Provides a Docker client container.
+        image: docker
+        container_name: docker-client
+        command: sh -c 'while [ 1 ]; do sleep 1000; done'
+        environment:
+            DOCKER_HOST: tcp://docker:2375
+        volumes:
+            - certs:/certs/client
+################    
+
+################
     redis:
         image: redis:alpine
         container_name: redis
@@ -29,6 +55,9 @@ services:
             - ./redis-data:/var/lib/redis
         environment:
             - REDIS_REPLICATION_MODE=master
+################
+
+################
     jenkins:
         image: jenkins/jenkins:lts
         privileged: true
@@ -39,3 +68,8 @@ services:
         container_name: jenkins_pipe
         volumes:
             - ./jenkins_data:/var/jenkins_home
+################
+################
+################
+volumes:
+    certs:
